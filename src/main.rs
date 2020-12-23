@@ -1,55 +1,26 @@
-use std::str;
-use std::io::{Read, Write, stdin, stdout};
-use termios::{Termios, tcsetattr};
-use termios::{BRKINT, CS8, ECHO, ICANON, ICRNL, IEXTEN, INPCK, ISIG, ISTRIP, IXON, OPOST, TCSAFLUSH};
-use libc::{STDIN_FILENO, VMIN, VTIME};
+#[allow(warnings)]
 
-fn disable_raw_mode(termios_main: Termios) {
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_main);
-}
+#[path ="./constants.rs"]
+mod constants;
 
-fn enable_raw_mode(termios_main: Termios) {
-    let mut termios = termios_main.clone();
-    
-    termios.c_lflag &= !(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-    termios.c_lflag &= !(OPOST);
-    termios.c_lflag |= CS8;
-    termios.c_lflag &= !(ECHO | ICANON | IEXTEN | ISIG);
-    termios.c_cc[VMIN] = 0;
-    termios.c_cc[VTIME] = 1;
+#[path ="./terminal_utility.rs"]
+mod terminal_utility;
 
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios);
-}
+#[path ="./input_utility.rs"]
+mod input_utility;
 
-fn read_input() {
-    let mut buffer = [0; 1];
+#[path ="./editor_visual.rs"]
+mod editor_visual;
 
-    println!("Starting to read");
-    loop {
-        if stdin().read_exact(&mut buffer).is_ok() {
-            let input = match str::from_utf8(& buffer) {
-                Ok(string) => string,
-                Err(e) => panic!("Invalid UTF-8 sequence: {}", e)
-            };
-
-            print!("{}", input);
-            stdout().lock().flush().is_ok();
-            
-            if input == "q" {
-                break;
-            }
-        }
-    }
-    println!("\nEnding to read");
-}
+#[path ="./editor_config.rs"]
+mod editor_config;
 
 fn main() {
-    let termios_main: Termios = Termios::from_fd(STDIN_FILENO).unwrap();
-
-    enable_raw_mode(termios_main);
-    read_input();
-
-    disable_raw_mode(termios_main);
+    let mut editor_config = editor_config::EditorConfig::new();
+    terminal_utility::enable_raw_mode(editor_config);
     
-    println!("Hello, world!");
+    editor_config.init_editor();
+    input_utility::editor_process_key(editor_config);
+
+    terminal_utility::disable_raw_mode(editor_config);
 }
