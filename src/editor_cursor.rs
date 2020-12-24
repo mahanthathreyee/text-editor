@@ -15,12 +15,12 @@ pub fn move_cursor_to_position(x: u16, y:u16, editor_config: &mut editor_config:
 pub fn editor_scroll(editor_config: &mut editor_config::EditorConfig, input_char: String, scroll: u16, buffer: &mut String) {
     match input_char.as_str() {
         constants::MOVE_CURSOR_UP => {
-            if editor_config.cursor_y > 0 && editor_config.cursor_y - scroll > 0 {
+            if editor_config.cursor_y > scroll && editor_config.cursor_y - scroll > 0 {
                 editor_config.cursor_y -= scroll;
             }
         }
         constants::MOVE_CURSOR_DOWN => {
-            if editor_config.cursor_y + scroll < editor_config.rows - 1 {
+            if editor_config.cursor_y + scroll < (editor_config.lines.len() - 1) as u16 {
                 editor_config.cursor_y += scroll;
             }
         }
@@ -30,7 +30,8 @@ pub fn editor_scroll(editor_config: &mut editor_config::EditorConfig, input_char
             }
         }
         constants::MOVE_CURSOR_RIGHT => {
-            if editor_config.cursor_x + scroll < editor_config.cols {
+            let max_cursor_position = (editor_config.lines[(editor_config.cursor_y) as usize].content.len() + 1) as u16 + constants::EDITOR_NUMBER_LINE_INDEX + 2;
+            if editor_config.cursor_x < max_cursor_position && editor_config.cursor_x + scroll < max_cursor_position {
                 editor_config.cursor_x += scroll;
             }
         }
