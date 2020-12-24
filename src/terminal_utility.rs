@@ -29,6 +29,7 @@ pub fn disable_raw_mode(editor_config: &editor_config::EditorConfig) {
     match tcsetattr(STDIN_FILENO, TCSAFLUSH, &editor_config.orig_termios) {
         Ok(_) => {
             let mut buffer: String = String::new();
+            buffer.push_str(constants::ANSI_CURSOR_RESET);
             editor_visual::clear_screen(&mut buffer);
             editor_visual::flush_buffer(&mut buffer);
         }

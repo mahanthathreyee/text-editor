@@ -18,18 +18,21 @@ mod editor_config;
 #[path ="./editor_cursor.rs"]
 mod editor_cursor;
 
+#[path ="./utility.rs"]
+mod utility;
+
 #[path ="./editor.rs"]
 mod editor;
 
-#[path ="./utility.rs"]
-mod utility;
+#[path ="./input_process.rs"]
+mod input_process;
 
 fn main() {
     let mut editor_config = editor_config::EditorConfig::new();
     terminal_utility::enable_raw_mode(&editor_config);
     
     editor::init_editor(&mut editor_config);
-    input_utility::editor_process_key(&mut editor_config);
+    editor::editor_process_key(&mut editor_config);
 
     terminal_utility::disable_raw_mode(&editor_config);
 }
