@@ -7,7 +7,7 @@ use libc::{STDOUT_FILENO, ioctl, TIOCGWINSZ, winsize};
 
 use crate::{constants, editor_config, editor_visual};
 
-pub fn enable_raw_mode(editor_config: editor_config::EditorConfig) {
+pub fn enable_raw_mode(editor_config: &editor_config::EditorConfig) {
     let mut termios = editor_config.orig_termios;
     
     termios.c_lflag &= !(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
@@ -19,25 +19,26 @@ pub fn enable_raw_mode(editor_config: editor_config::EditorConfig) {
 
     match tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios) {
         Ok(_) => {}
-        Err(e) => panic!("{} {}", constants::MESSAGE_ERROR_INVALID_UTF8, e)
+        Err(e) => {
+            editor_visual::error_and_exit(format!("{} {}", constants::MESSAGE_ERROR_SETTING_TERMINAL_CONFIG, e));
+        }
     }
 }
 
-pub fn disable_raw_mode(editor_config: editor_config::EditorConfig) {
+pub fn disable_raw_mode(editor_config: &editor_config::EditorConfig) {
     match tcsetattr(STDIN_FILENO, TCSAFLUSH, &editor_config.orig_termios) {
         Ok(_) => {
             let mut buffer: String = String::new();
             editor_visual::clear_screen(&mut buffer);
-            print!("{}", buffer);
-            stdout().flush().unwrap();
+            editor_visual::flush_buffer(&mut buffer);
         }
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e)
+        Err(e) => {
+            editor_visual::error_and_exit(format!("{} {}", constants::MESSAGE_ERROR_SETTING_TERMINAL_CONFIG, e));
+        }
     }
 }
 
 pub fn get_window_size(editor_config: &mut editor_config::EditorConfig) -> bool {
-    
-
     let mut window_size = winsize {
         ws_row: 0,
         ws_col: 0,
@@ -78,7 +79,9 @@ fn get_window_size_by_cursor_position(editor_config: &mut editor_config::EditorC
                 let input_str = input_char.to_string();
                 dimensions.extend(input_str.chars());
             }
-            Err(e) => panic!("{} {}", constants::MESSAGE_ERROR_INVALID_UTF8, e)
+            Err(e) => {
+                editor_visual::error_and_exit(format!("{} {}", constants::MESSAGE_ERROR_DIMENSION_INTEGER_PARSE, e));
+            }
         }
     }
 

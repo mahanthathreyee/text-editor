@@ -1,13 +1,19 @@
 use termios::{Termios};
 use libc::{STDIN_FILENO};
 
-use crate::terminal_utility;
+use crate::{constants};
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct EditorConfig {
     pub orig_termios: Termios,
+    
     pub rows: u16,
-    pub cols: u16 
+    pub cols: u16,
+    
+    pub cursor_x: u16,
+    pub cursor_y: u16,
+
+    pub lines: Vec<EditorLine>
 }
 
 impl EditorConfig {
@@ -15,7 +21,10 @@ impl EditorConfig {
         EditorConfig {
             orig_termios: Termios::from_fd(STDIN_FILENO).unwrap(),
             rows: 0,
-            cols: 0
+            cols: 0,
+            cursor_x: constants::EDITOR_NUMBER_LINE_INDEX,
+            cursor_y: 0,
+            lines: Vec::new()
         }
     }
 
@@ -23,8 +32,17 @@ impl EditorConfig {
         self.rows = rows;
         self.cols = cols;
     }
+}
 
-    pub fn init_editor(&mut self) -> bool {
-        terminal_utility::get_window_size(self)
+#[derive(Clone)]
+pub struct EditorLine {
+    pub content: String
+}
+
+impl EditorLine {
+    pub fn new(content: String) -> EditorLine {
+        EditorLine {
+            content
+        }
     }
 }
