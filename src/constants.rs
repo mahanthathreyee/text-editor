@@ -27,6 +27,9 @@ pub const ANSI_CURSOR_THIN: &str = "\x1b[6 q";
 pub const ANSI_CURSOR_UNDERSCORE: &str = "\x1b[4 q";
 pub const ANSI_CURSOR_THICK: &str = "\x1b[2 q";
 pub const ANSI_CURSOR_RESET: &str = "\x1b[0 q";
+pub const ANSI_CURSOR_SAVE: &str = "\x1b[s";
+pub const ANSI_CURSOR_RESTORE: &str = "\x1b[u";
+pub const ANSI_CLEAR_ENTIRE_LINE: &str = "\x1b[2K";
 
 //ANSI BACKGROUND COLOR CODES
 pub const ANSI_COLOR_RESET: &str = "\x1b[0m";

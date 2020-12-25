@@ -4,7 +4,8 @@ pub fn command_matcher(input_char: &str, editor_config: &mut editor_config::Edit
     let mut buffer = String::new();
 
     buffer.push_str(constants::ANSI_CURSOR_THIN);
-    editor_cursor::move_cursor_to_position(0, editor_config.rows, editor_config, &mut buffer);
+    editor_visual::clear_command_line(editor_config, &mut buffer);
+    editor_cursor::save_cursor_and_move_position(0, editor_config.rows, &mut buffer, false);
     buffer.push_str(input_char);
     editor_visual::flush_buffer(&mut buffer);
 
@@ -22,6 +23,12 @@ pub fn command_matcher(input_char: &str, editor_config: &mut editor_config::Edit
             }
         }
     }
+
+    editor_cursor::restore_cursor(&mut buffer);
+    editor_visual::clear_command_line(editor_config, &mut buffer);
+    buffer.push_str(constants::ANSI_CURSOR_RESET);
+    print!("{:?}", buffer);
+    editor_visual::flush_buffer(&mut buffer);
 
     if ! command_buffer.is_empty() {
         match command_buffer.as_str() {

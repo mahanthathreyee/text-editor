@@ -2,7 +2,7 @@ use std::io::{Write, stdout};
 
 use constants::ANSI_COLOR_RESET;
 
-use crate::{constants, editor_config};
+use crate::{constants, editor_config, editor_cursor};
 
 pub fn flush_buffer(buffer: &mut String) {
     print!("{}", buffer);
@@ -67,4 +67,10 @@ fn draw_status_line(editor_config: &editor_config::EditorConfig, buffer: &mut St
             buffer.push_str(&format!("{} {}", constants::ANSI_BACKGROUND_COLOR_LIGHT_BLACK, ANSI_COLOR_RESET));
         }
     }
+}
+
+pub fn clear_command_line(editor_config: &editor_config::EditorConfig, buffer: &mut String) {
+    editor_cursor::save_cursor_and_move_position(0, editor_config.rows, buffer, true);
+    buffer.push_str(constants::ANSI_CLEAR_ENTIRE_LINE);
+    editor_cursor::restore_cursor(buffer);
 }

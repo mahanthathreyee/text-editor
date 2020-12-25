@@ -28,21 +28,19 @@ pub fn write_line(editor_config: &mut editor_config::EditorConfig, buffer: &mut 
 }   
 
 pub fn update_mode_in_status_line(editor_config: &mut editor_config::EditorConfig, buffer: &mut String, editor_mode: &constants::EDITOR_MODES) {
-    let initial_cursor: (u16, u16) = (editor_config.cursor_x, editor_config.cursor_y);
-
-    editor_cursor::move_cursor_to_position(1, editor_config.rows - 1, editor_config, buffer);
+    editor_cursor::save_cursor_and_move_position(1, editor_config.rows - 1, buffer, true);
     let mode_text = utility::center_text(editor_mode.name().to_string(), constants::EDITOR_STATUS_LINE_MODE_WIDTH as usize);
     buffer.push_str(&format!("{}{}{}{}", constants::ANSI_BACKGROUND_COLOR_GREEN, constants::ANSI_TEXT_COLOR_BLACK, &mode_text, constants::ANSI_COLOR_RESET));
-    editor_cursor::move_cursor_to_position(initial_cursor.0, initial_cursor.1, editor_config, buffer);
+    editor_cursor::restore_cursor(buffer);
 }
 
 pub fn update_position_in_status_line(editor_config: &mut editor_config::EditorConfig, buffer: &mut String) {
     let initial_cursor: (u16, u16) = (editor_config.cursor_x, editor_config.cursor_y);
 
-    editor_cursor::move_cursor_to_position((editor_config.cols + 1) - constants::EDITOR_STATUS_LINE_MODE_WIDTH, editor_config.rows - 1, editor_config, buffer);
+    editor_cursor::save_cursor_and_move_position((editor_config.cols + 1) - constants::EDITOR_STATUS_LINE_MODE_WIDTH, editor_config.rows - 1, buffer, true);
     let mode_text = utility::center_text(format!("{}:{}", initial_cursor.1, initial_cursor.0 - (constants::EDITOR_NUMBER_LINE_INDEX + 2)), constants::EDITOR_STATUS_LINE_MODE_WIDTH as usize);
     buffer.push_str(&format!("{}{}{}{}", constants::ANSI_BACKGROUND_COLOR_GREEN, constants::ANSI_TEXT_COLOR_BLACK, &mode_text, constants::ANSI_COLOR_RESET));
-    editor_cursor::move_cursor_to_position(initial_cursor.0, initial_cursor.1, editor_config, buffer);
+    editor_cursor::restore_cursor(buffer);
 }
 
 pub fn editor_process_key(editor_config: &mut editor_config::EditorConfig) {    

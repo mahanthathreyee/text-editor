@@ -12,6 +12,19 @@ pub fn move_cursor_to_position(x: u16, y:u16, editor_config: &mut editor_config:
     move_cursor(editor_config, buffer);
 }
 
+pub fn save_cursor_and_move_position(x: u16, y:u16, buffer: &mut String, hide_cursor: bool) {
+    if hide_cursor {   
+        buffer.push_str(&constants::ANSI_HIDE_CURSOR);
+    }
+    buffer.push_str(constants::ANSI_CURSOR_SAVE);
+    buffer.push_str(&format!("\x1b[{};{}H", y, x));
+}
+
+pub fn restore_cursor(buffer: &mut String) {
+    buffer.push_str(constants::ANSI_CURSOR_RESTORE);
+    buffer.push_str(&constants::ANSI_SHOW_CURSOR);
+}
+
 pub fn editor_scroll(editor_config: &mut editor_config::EditorConfig, input_char: String, scroll: u16) {
     let mut buffer = String::new();
     match input_char.as_str() {
